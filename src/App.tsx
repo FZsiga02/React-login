@@ -51,9 +51,13 @@ class App extends Component<{}, State> {
     }
     const responseBody = await response.json();
     console.log(responseBody.token);
+    localStorage.setItem('authToken', responseBody.token)
     this.setState({
        loggedIn: true,
        authToken: responseBody.token,
+       username: '',
+       password: '',
+       loginError: '',
       })
   }
 
@@ -67,12 +71,20 @@ class App extends Component<{}, State> {
     this.setState({ profile: profileData });
   }
 
+  handleLogout = () => {
+    this.setState({
+      loggedIn: false,
+      authToken: '',
+      profile: null,
+    })
+  }
+
   render() {
     const { username, password, loginError, loggedIn, profile } = this.state;
 
     if (loggedIn) {
       return <div>
-        <p><button>Logout</button></p>
+        <p><button onClick={this.handleLogout}>Logout</button></p>
         <p><button onClick={this.handleLoadProfile}>Load profile data</button></p>
         <p>My profile:</p>
         <p>Username: { profile?.username }</p>
