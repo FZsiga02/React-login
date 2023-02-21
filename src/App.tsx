@@ -1,26 +1,66 @@
-import React from 'react';
+import React, { Component, FormEvent } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+interface State {
+  username: string;
+  password: string;
+  loginError: string;
+}
+
+class App extends Component<{}, State> {
+
+  constructor(props: {}) {
+    super(props);
+
+    this.state = {
+      username: '',
+      password: '',
+      loginError: '',
+    }
+  }
+
+  handleLogin = async (e: FormEvent) => {
+    e.preventDefault();
+    const loginData = {
+      'username': this.state.username,
+      'password': this.state.password,
+    };
+
+    const response = await fetch('http://localhost:3000/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(loginData),
+    });
+    if (!response.ok) {
+      if (response.status == 401) {
+        this.setState({ loginError: 'Hibás név vagy jelszó' });
+      } else {
+        this.setState({ loginError: 'Szerver hiba' });
+      }
+    }
+  }
+
+  render() {
+    return <div>
+      <form onSubmit={this.handleLogin}>
+        <label>
+          Username:<br/>
+          <input type="text" value={this.state.username} onChange={(e) => this.setState({ username: e.target.value })}/>
+        </label>
+        <br/>
+        <label>
+          Password:<br/>
+          <input type="password" value={this.state.password} onChange={(e) => this.setState({ password: e.target.value })}/>
+        </label>
+        <br/>
+        <p>{ this.state.loginError }</p>
+        <input type="submit" value="Login" />
+      </form>
     </div>
-  );
+  }
 }
 
 export default App;
