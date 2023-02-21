@@ -1,11 +1,15 @@
 import React, { Component, FormEvent } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import ProfileData from './ProfileData';
 
 interface State {
   username: string;
   password: string;
   loginError: string;
+  loggedIn: boolean;
+  authToken: string;
+  profile: ProfileData | null;
 }
 
 class App extends Component<{}, State> {
@@ -17,6 +21,9 @@ class App extends Component<{}, State> {
       username: '',
       password: '',
       loginError: '',
+      loggedIn: false,
+      authToken: '',
+      profile: null,
     }
   }
 
@@ -43,23 +50,49 @@ class App extends Component<{}, State> {
       return;
     }
     const responseBody = await response.json();
-    console.log(responseBody.token)
+    console.log(responseBody.token);
+    this.setState({
+       loggedIn: true,
+       authToken: responseBody.token,
+      })
+  }
+
+  handleLoadProfile = async () => {
+    const response = await fetch('http://localhost:3000/auth/login', {
+      headers: {
+        'Authorization': 'Bearer ' + this.state.authToken
+      }
+    });
+    const profileData = await response.json();
+    this.setState({ profile: profileData });
   }
 
   render() {
+    const { username, password, loginError, loggedIn, profile } = this.state;
+
+    if (loggedIn) {
+      return <div>
+        <p><button>Logout</button></p>
+        <p><button onClick={this.handleLoadProfile}>Load profile data</button></p>
+        <p>My profile:</p>
+        <p>Username: { profile?.username }</p>
+        <p>User id: { profile?.id }</p>
+      </div>
+    }
+
     return <div>
       <form onSubmit={this.handleLogin}>
         <label>
           Username:<br/>
-          <input type="text" value={this.state.username} onChange={(e) => this.setState({ username: e.target.value })}/>
+          <input type="text" value={username} onChange={(e) => this.setState({ username: e.target.value })}/>
         </label>
         <br/>
         <label>
           Password:<br/>
-          <input type="password" value={this.state.password} onChange={(e) => this.setState({ password: e.target.value })}/>
+          <input type="password" value={password} onChange={(e) => this.setState({ password: e.target.value })}/>
         </label>
         <br/>
-        <p>{ this.state.loginError }</p>
+        <p>{ loginError }</p>
         <input type="submit" value="Login" />
       </form>
     </div>
