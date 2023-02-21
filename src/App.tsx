@@ -40,7 +40,10 @@ class App extends Component<{}, State> {
       } else {
         this.setState({ loginError: 'Szerver hiba' });
       }
+      return;
     }
+    const responseBody = await response.json();
+    console.log(responseBody.token)
   }
 
   render() {
