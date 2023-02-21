@@ -27,6 +27,13 @@ class App extends Component<{}, State> {
     }
   }
 
+  componentDidMount(): void {
+    const token = localStorage.getItem('authToken');
+    if (token != null) {
+      this.setState({ authToken: token, loggedIn: true })
+    }
+  }
+
   handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     const loginData = {
