@@ -3,10 +3,10 @@ import logo from './logo.svg';
 import './App.css';
 import ProfileData from './ProfileData';
 import LoginForm from './components/LoginForm';
+import ProfilePage from './components/ProfilePage';
 
 interface State {
   authToken: string;
-  profile: ProfileData | null;
 }
 
 class App extends Component<{}, State> {
@@ -16,42 +16,22 @@ class App extends Component<{}, State> {
 
     this.state = {
       authToken: '',
-      profile: null,
     }
   }
 
- 
-
-  handleLoadProfile = async () => {
-    const response = await fetch('http://localhost:3000/auth/login', {
-      headers: {
-        'Authorization': 'Bearer ' + this.state.authToken
-      }
-    });
-    const profileData = await response.json();
-    this.setState({ profile: profileData });
-  }
-
-  
-
   render() {
-    const { authToken, profile } = this.state;
+    const { authToken } = this.state;
     const loggedIn = authToken != '';
 
     return <div>
-      <LoginForm 
-      authToken={authToken}
-      onAuthTokenChange={(token) => this.setState({ authToken: token })}
+      <LoginForm
+        authToken={authToken}
+        onAuthTokenChange={(token) => this.setState({ authToken: token })}
       />
       {
         loggedIn ?
-        <div>
-          <p><button onClick={this.handleLoadProfile}>Load profile data</button></p>
-          <p>My profile:</p>
-          <p>Username: { profile?.username }</p>
-          <p>User id: { profile?.id }</p>
-        </div> : 
-        <p>Please log in</p>
+          <ProfilePage authToken={authToken} /> :
+          <p>Please log in</p>
       }
     </div>
   }
